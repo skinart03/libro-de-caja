@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex"><meta name="theme-color" content="#000000"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="../icon-192.png"><link rel="apple-touch-icon" href="../icon-180.png"><meta name="apple-mobile-web-app-title" content="Libro de Caja">
 <title>Libro de Caja</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>
@@ -539,6 +540,114 @@ input[type=range]{width:100%;padding:0;accent-color:var(--accent)}
 <div class="toast" id="toast" hidden></div>
 
 <style>.btnlike{display:inline-flex;align-items:center;padding:10px 16px;border-radius:12px;border:1px solid var(--line,#ccc);font-weight:600}</style>
+
+<style>
+/* SKIN "Nodo" — tarjetas-nodo con borde de luz lavanda; un solo nodo encendido por pantalla. Claro y oscuro. */
+:root{
+  --bg:#F5F4FA; --surface:#FFFFFF; --surface-2:#FCFBFF; --ink:#16141F; --muted:#666379; --line:#E3E0EE;
+  --accent:#6B55E6; --accent-soft:rgba(107,85,230,.10); --edge:rgba(107,85,230,.38); --glow:rgba(107,85,230,.28);
+  --on-accent:#FFFFFF; --field:#F7F6FB; --chipbg:#F1EFF8; --icbg:#F3F1FB; --track:#E9E6F3; --nav-bg:rgba(255,255,255,.82);
+  --hero-a:rgba(107,85,230,.16); --hero-b:#FFFFFF; --hero-c:#F7F5FF; --ambient:rgba(107,85,230,.10);
+  --in:#11895A; --out:#CF3747; --warn:#9A6400; --warn-soft:rgba(154,100,0,.10); --neutral:#8C899D;
+  --hero-bg:#FFFFFF; --hero-fg:#16141F;
+  --f-display:"Unbounded",ui-sans-serif,system-ui,sans-serif;
+  --f-body:"Manrope",ui-sans-serif,system-ui,sans-serif;
+  --f-mono:"Manrope",ui-sans-serif,system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#08080B; --surface:#111116; --surface-2:#18181F; --ink:#F3F2F8; --muted:#8F8C9E; --line:#25242E;
+  --accent:#AE9CFF; --accent-soft:rgba(174,156,255,.12); --edge:rgba(174,156,255,.42); --glow:rgba(174,156,255,.55);
+  --on-accent:#120F22; --field:#0C0C10; --chipbg:#1A1A21; --icbg:#0B0B0F; --track:#1C1B24; --nav-bg:rgba(12,12,16,.78);
+  --hero-a:rgba(174,156,255,.22); --hero-b:#16141F; --hero-c:#0F0E15; --ambient:rgba(120,96,255,.16);
+  --in:#5FD8A4; --out:#FF7C88; --warn:#F2B65A; --warn-soft:rgba(242,182,90,.12); --neutral:#6E6C7C;
+  --hero-bg:#121019; --hero-fg:#F3F2F8; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#08080B; --surface:#111116; --surface-2:#18181F; --ink:#F3F2F8; --muted:#8F8C9E; --line:#25242E;
+  --accent:#AE9CFF; --accent-soft:rgba(174,156,255,.12); --edge:rgba(174,156,255,.42); --glow:rgba(174,156,255,.55);
+  --on-accent:#120F22; --field:#0C0C10; --chipbg:#1A1A21; --icbg:#0B0B0F; --track:#1C1B24; --nav-bg:rgba(12,12,16,.78);
+  --hero-a:rgba(174,156,255,.22); --hero-b:#16141F; --hero-c:#0F0E15; --ambient:rgba(120,96,255,.16);
+  --in:#5FD8A4; --out:#FF7C88; --warn:#F2B65A; --warn-soft:rgba(242,182,90,.12); --neutral:#6E6C7C;
+  --hero-bg:#121019; --hero-fg:#F3F2F8; color-scheme:dark}
+:root[data-theme="light"]{color-scheme:light}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;letter-spacing:-.005em}
+body::before{content:"";position:fixed;inset:-20vh auto auto -20vw;width:70vw;height:70vh;background:radial-gradient(closest-side,var(--ambient),transparent);pointer-events:none;z-index:0}
+.wrap{position:relative;z-index:1}
+h1,h2,h3{font-family:var(--f-display);letter-spacing:-.01em}
+h2{font-size:16px;font-weight:500}
+.num{font-family:var(--f-body);font-variant-numeric:tabular-nums;font-weight:600}
+
+/* encabezado: logo · mes · botón de tema (el botón siempre en la esquina) */
+header{display:grid!important;grid-template-columns:auto 1fr;align-items:center!important}
+header .filters{justify-content:flex-end;flex-wrap:nowrap;gap:10px}
+.themebtn{position:static!important;box-shadow:none!important;background:var(--surface-2)!important;color:var(--ink)!important;border:1px solid var(--edge)!important;border-radius:999px;padding:8px 14px;order:3;margin-left:6px}
+.themebtn:hover{box-shadow:0 0 18px -6px var(--glow)!important}
+@media (max-width:700px){.themebtn{padding:9px 11px!important}.themebtn .tl{display:none}header .filters label{display:none}}
+
+/* tarjetas-nodo */
+.card,.tile,.kpi,.pair>*,.calcw,.syncbar,.goal{background:linear-gradient(180deg,var(--surface-2),var(--surface));border:1px solid var(--line);border-radius:16px;box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}
+.kpi .lbl,.tile .lbl,.hero .lbl,.lbl{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.kpi .val{font-family:var(--f-display);font-weight:500;font-size:20px}
+
+/* hero: el único nodo encendido */
+.hero{background:radial-gradient(120% 90% at 0% 0%,var(--hero-a),transparent 60%),linear-gradient(180deg,var(--hero-b),var(--hero-c))!important;border:1px solid var(--edge)!important;border-radius:20px!important;box-shadow:0 0 0 1px var(--accent-soft),0 18px 50px -24px var(--glow)!important;color:var(--ink)!important}
+.hero .big{font-family:var(--f-display)!important;font-weight:600!important;letter-spacing:-.03em;font-size:clamp(30px,8.5vw,52px)!important}
+.hero .side span:last-child{font-family:var(--f-display);font-weight:500}
+.tile.bigt .amt{font-size:clamp(18px,5.2vw,40px)!important;letter-spacing:-.03em!important}
+
+/* botones */
+button,.btnlike,.savebtn,a.savebtn{border-radius:999px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink)}
+button.primary,.savebtn,a.savebtn{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:700}
+button.big{border-radius:999px;background:var(--surface-2);border:1px solid var(--line);font-family:var(--f-body);font-weight:700}
+select,input,textarea{background:var(--field);border:1px solid var(--line);border-radius:12px;color:var(--ink)}
+.pctsel{border-radius:999px}
+
+/* chips y estados */
+.chip{background:var(--accent-soft);color:var(--accent);border:1px solid var(--edge)}
+.chip.warn{background:var(--warn-soft);color:var(--warn);border-color:var(--warn-soft)}
+.chip.grey{background:var(--chipbg);color:var(--muted);border-color:var(--line)}
+.insight{background:var(--field);border:1px solid var(--line);border-radius:14px}
+
+/* tabs pill */
+.tabs{border-bottom:0;gap:6px;padding-bottom:2px}
+.tab{border-radius:999px!important;border:1px solid transparent!important;padding:8px 14px!important;font-weight:600}
+.tab[aria-selected="true"]{background:var(--surface-2);border-color:var(--edge)!important;color:var(--ink);box-shadow:0 0 18px -6px var(--glow)}
+
+/* nav inferior vidrio */
+.bnav{background:var(--nav-bg)!important;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid var(--line)!important}
+.bnav .plus{background:var(--accent)!important;color:var(--on-accent)!important;box-shadow:0 0 0 6px var(--accent-soft),0 10px 30px -8px var(--glow)!important}
+.bnav [aria-current="page"]{color:var(--accent)!important}
+
+/* barras */
+.bar .track,.mbar,.prog{background:var(--track)}
+.bar .fill,.mbar>div,.prog>div{background:linear-gradient(90deg,#7C66FF,var(--accent))}
+
+/* título con píldora */
+.sk-title{display:grid;gap:10px;justify-items:start;margin:6px 0 2px}
+.sk-title h2{font-size:22px;font-weight:600}
+.sk-title::after{content:"";width:34px;height:8px;border-radius:999px;background:var(--accent);box-shadow:0 0 14px var(--glow)}
+
+/* menú "Más" como mapa de nodos */
+.sk-map{display:grid;gap:22px}
+.sk-group{display:grid;gap:10px;position:relative;padding-left:22px}
+.sk-group::before{content:"";position:absolute;left:7px;top:34px;bottom:30px;width:1px;background:linear-gradient(var(--edge),var(--line))}
+.sk-gl{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-left:-22px;display:flex;align-items:center;gap:8px}
+.sk-gl::before{content:"";width:15px;height:15px;border-radius:50%;border:1px solid var(--edge);background:var(--bg);box-shadow:0 0 10px var(--glow)}
+.sk-node{position:relative;display:grid!important;grid-template-columns:40px 1fr auto;gap:12px;align-items:center;text-align:left;padding:14px!important;border-radius:16px!important;background:linear-gradient(180deg,var(--surface-2),var(--surface))!important;border:1px solid var(--line)!important;width:100%}
+.sk-node::before{content:"";position:absolute;left:-16px;top:50%;width:15px;height:1px;background:var(--line)}
+.sk-node:hover,.sk-node:focus-visible{border-color:var(--edge)!important;box-shadow:0 0 22px -8px var(--glow)}
+.sk-ic{width:40px;height:40px;border-radius:11px;background:var(--icbg);border:1px solid var(--line);display:grid;place-items:center;color:var(--accent)}
+.sk-ic svg{width:20px;height:20px}
+.sk-tx{display:grid;gap:1px;min-width:0}
+.sk-eb{font-size:11px;color:var(--muted);font-weight:600}
+.sk-tt{font-family:var(--f-display);font-size:15px;font-weight:500;color:var(--ink)}
+.sk-ds{font-size:13px;color:var(--muted)}
+.sk-go{color:var(--muted);font-size:18px}
+.sk-chips{display:flex;flex-wrap:wrap;gap:6px;padding-left:52px}
+.sk-chips span{font-size:12px;padding:5px 10px;border-radius:999px;background:var(--field);border:1px solid var(--line);color:var(--muted)}
+.sk-badge{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;display:flex;justify-content:center}
+.sk-badge span{font-size:12px;font-weight:700;padding:6px 12px;border-radius:999px;background:var(--accent-soft);border:1px solid var(--edge);color:var(--accent);backdrop-filter:blur(10px)}
+@media (prefers-reduced-motion:no-preference){.sk-node,.tab,button{transition:border-color .18s,box-shadow .18s,background .18s}}
+</style>
 <script>
 function LocalDB(){const K="lc-db-v1";let S={};try{S=JSON.parse(localStorage.getItem(K)||"{}")||{}}catch(e){S={}}
 const L=new Set(),cl=v=>v===undefined?v:JSON.parse(JSON.stringify(v));
@@ -1244,6 +1353,34 @@ document.addEventListener("keydown",e=>{if(e.target.id==="iaIn"&&e.key==="Enter"
 document.addEventListener("change",async e=>{if(e.target.id==="iaObj"){await saveCfg({objetivoIA:e.target.value.trim()});toast("Objetivo guardado. El asesor lo va a tener en cuenta.")}});
 (async()=>{try{IA_SAMPLE=(window.claude&&window.claude.use)?await window.claude.use("sample"):null}catch(e){IA_SAMPLE=null}iaRender()})();
 iaRender();
+
+
+(function(){
+  const I={
+    ia:'<path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/>',
+    presu:'<circle cx="12" cy="12" r="8.5"/><path d="M12 3.5V12l6 6"/>',
+    importar:'<path d="M12 15V4"/><path d="M7.5 8.5L12 4l4.5 4.5"/><path d="M5 15v4h14v-4"/>',
+    alquiler:'<path d="M4 11l8-6.5 8 6.5"/><path d="M6 10v9.5h12V10"/><path d="M10 19.5v-5h4v5"/>',
+    mono:'<rect x="4.5" y="3.5" width="15" height="17" rx="2"/><path d="M8 8h8M8 12h8M8 16h4"/>',
+    fact:'<path d="M6 3.5h12v17l-3-2-3 2-3-2-3 2z"/><path d="M9 8.5h6M9 12h6"/>',
+    cal:'<rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/>',
+    rep:'<path d="M5 20V10M10.5 20V4M16 20v-7M21 20H3"/>',
+    cobros:'<circle cx="9" cy="8" r="3.5"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M17 7v6M14 10h6"/>'
+  };
+  const G=[
+    {t:"Impuestos",items:[["mono","Monotributo","Tu categoría","Cuánto podés facturar y cuándo recategorizarte",["Categoría","Tope","Cuota"]],["fact","Facturas","Comprobantes","Cobros sin factura y datos listos para ARCA",["Facturar","Registrar"]],["cal","Calendario","Vencimientos","Todo lo que vence, con aviso en tu celu",["Día 20","Recategorización"]],["rep","Reportes","Cierre del mes","Informe en PDF y movimientos en Excel",["PDF","Excel"]]]},
+    {t:"Tu plata",items:[["presu","Presupuesto","Topes y fijos","Cuánto te queda por categoría",[]],["alquiler","Alquiler","Simulador","¿Me da para alquilar? La cuenta paso a paso",[]],["cobros","Cobros pendientes","Clientes","Quién te debe y cuánto",[]]]},
+    {t:"Herramientas",items:[["ia","Asesor IA","Inteligencia","Un plan con tus números para lograr tu objetivo",[]],["importar","Subir resumen","Datos","PDF de Mercado Pago",[]]]}
+  ];
+  const svg=k=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${I[k]||""}</svg>`;
+  function mapa(){
+    const m=document.querySelector("#p-mas .mas");if(!m||m.dataset.sk)return;m.dataset.sk="1";m.className="sk-map";
+    m.innerHTML=`<div class="sk-title"><h2>Todo en un lugar</h2></div>`+G.map(g=>`<div class="sk-group"><div class="sk-gl">${g.t}</div>${g.items.map(([k,t,eb,ds,ch])=>`<button class="sk-node" data-goto="${k}"><span class="sk-ic">${svg(k)}</span><span class="sk-tx"><span class="sk-eb">${eb}</span><span class="sk-tt">${t}</span><span class="sk-ds">${ds}</span></span><span class="sk-go" aria-hidden="true">›</span></button>${ch.length?`<div class="sk-chips">${ch.map(c=>`<span>${c}</span>`).join("")}</div>`:""}`).join("")}</div>`).join("");
+  }
+  const b=document.createElement("div");b.className="sk-badge";b.innerHTML="<span>Vista previa del diseño nuevo · datos de septiembre</span>";
+  const w=document.querySelector(".wrap");if(w&&window.SK_PREVIEW)w.prepend(b);
+  mapa();
+})();
 </script>
 </body>
 </html>
