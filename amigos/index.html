@@ -177,6 +177,24 @@ input[type=range]{width:100%;padding:0;accent-color:var(--accent)}
 .brandh{margin:0;line-height:0}.brandh .logo{width:40px;height:40px;color:var(--ink);display:block}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 [hidden]{display:none!important}
+.iawrap{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;min-width:0}
+.iawrap input,.iawrap textarea{width:100%;box-sizing:border-box;min-width:0}
+.iacta button{white-space:nowrap}
+#iaChat,#iaExt{display:grid;gap:12px;min-width:0}
+.iaobjl{display:grid;gap:6px}
+.ialog{display:flex;flex-direction:column;gap:10px;max-height:min(55vh,520px);overflow-y:auto;padding:4px 2px}
+.iamsg{white-space:pre-wrap;line-height:1.5;padding:12px 14px;border-radius:16px;max-width:88%;font-size:15px}
+.iamsg.u{align-self:flex-end;background:var(--accent);color:#fff;border-bottom-right-radius:6px}
+.iamsg.a{align-self:flex-start;background:var(--surface);border:1px solid var(--line);border-bottom-left-radius:6px}
+.iachips{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px}
+.iachips button{white-space:nowrap;border-radius:999px;font-size:14px;padding:8px 14px}
+.iabar{display:flex;gap:8px;align-items:flex-end}
+.iabar textarea{flex:1;width:auto;min-height:44px;max-height:140px;resize:vertical}
+.iaext{display:flex;gap:10px;flex-wrap:wrap}
+#iaQ{width:100%}
+.linkbtn{background:none;border:0;color:var(--accent);font-weight:600;padding:4px}
+.iacta{display:flex;align-items:center;justify-content:space-between;gap:12px}
+
 </style>
 
 <div class="wrap">
@@ -201,6 +219,7 @@ input[type=range]{width:100%;padding:0;accent-color:var(--accent)}
     <button class="tab" role="tab" data-t="presu">Presupuesto</button>
     <button class="tab" role="tab" data-t="alquiler">Alquiler</button>
     <button class="tab" role="tab" data-t="cobros">Cobros pendientes</button>
+    <button class="tab" role="tab" data-t="ia">Asesor IA</button>
   </div>
 
   <section class="panel" id="p-resumen">
@@ -216,6 +235,7 @@ input[type=range]{width:100%;padding:0;accent-color:var(--accent)}
       <b class="num" id="cRes">—</b>
       <a class="savebtn" id="cSave" href="https://www.mercadopago.com.ar/" target="_blank" rel="noopener">Ahorrar</a>
     </div>
+    <div class="calcw iacta"><span>¿Qué querés lograr con tu plata?</span><button type="button" class="primary" data-goto="ia">Asesor IA</button></div>
     <div class="syncbar" id="syncbar" hidden><span class="dot2" id="syncDot"></span><span id="syncTxt">Conectando con Mercado Pago…</span><button data-goto="importar">↑ Subir resumen</button></div>
     <div class="pair">
       <div class="tile" id="saveTile"></div>
@@ -342,8 +362,44 @@ input[type=range]{width:100%;padding:0;accent-color:var(--accent)}
     </div>
   </section>
 
+  <section class="panel" id="p-ia" hidden>
+    <div class="card iawrap">
+      <div class="goal-h"><h2>Asesor IA</h2><button type="button" class="linkbtn" id="iaClear">Nueva charla</button></div>
+      <label class="note iaobjl">¿Qué querés lograr?<input type="text" id="iaObj" placeholder="Ej: juntar $ 1.700.000 para mudarme en marzo"></label>
+      <div id="iaChat">
+        <div class="ialog" id="iaLog" aria-live="polite"></div>
+        <div class="iachips">
+          <button type="button" data-ia="Armame un plan paso a paso para lograr mi objetivo con mis números actuales.">Armame un plan</button>
+          <button type="button" data-ia="¿En qué estoy gastando de más y cuánto podría recortar por mes?">¿Dónde recorto?</button>
+          <button type="button" data-ia="¿Cuánto debería ahorrar por mes y en cuánto tiempo llego a mi meta?">¿En cuánto llego?</button>
+          <button type="button" data-ia="Con mis ingresos y gastos, ¿me da para alquilar? ¿Hasta qué monto?">¿Me da para alquilar?</button>
+        </div>
+        <div class="iabar">
+          <textarea id="iaIn" rows="1" placeholder="Escribí tu pregunta…"></textarea>
+          <button type="button" class="primary" id="iaSend">Enviar</button>
+          <button type="button" id="iaStop" hidden>Frenar</button>
+        </div>
+      </div>
+      <div id="iaExt" hidden>
+        <p class="note">Escribí lo que querés lograr. La app arma un resumen de tus números, lo copia, y abre el chat de IA: ahí solo tenés que pegarlo.</p>
+        <textarea id="iaQ" rows="3" placeholder="Ej: quiero ahorrar para un viaje en enero, ¿cómo hago?"></textarea>
+        <div class="iachips">
+          <button type="button" data-ia="Armame un plan paso a paso para lograr mi objetivo con mis números actuales.">Armame un plan</button>
+          <button type="button" data-ia="¿En qué estoy gastando de más y cuánto podría recortar por mes?">¿Dónde recorto?</button>
+          <button type="button" data-ia="¿Cuánto debería ahorrar por mes y en cuánto tiempo llego a mi meta?">¿En cuánto llego?</button>
+        </div>
+        <div class="iaext">
+          <button type="button" class="primary" data-iaext="claude">Copiar y abrir Claude</button>
+          <button type="button" data-iaext="gpt">Copiar y abrir ChatGPT</button>
+        </div>
+        <p class="note">Solo se copia un resumen con montos y categorías. No se manda nada sin que vos lo pegues.</p>
+      </div>
+    </div>
+  </section>
+
   <section class="panel" id="p-mas" hidden>
     <div class="mas">
+      <button data-goto="ia">Asesor IA <span>Tu plan para lograrlo</span></button>
       <button data-goto="presu">Presupuesto y gastos fijos <span>Topes y vencimientos</span></button>
       <button data-goto="importar">Subir resumen <span>PDF de Mercado Pago</span></button>
       <button data-goto="alquiler">Alquiler <span>¿Me da para alquilar?</span></button>
@@ -405,7 +461,7 @@ const ESCALA=[["A",12009410,49527.18,10843],["B",17595182,56379,16242],["C",2467
 const TIPOS={ingreso:"Ingreso por trabajo",gasto:"Gasto",interno:"Excluido (no cuenta)",ahorro:"Ahorro / inversión",rendimiento:"Rendimiento"};
 const CATS=["Trabajo","Otros ingresos","Herramientas de trabajo","Supermercado","Almacén / verdulería","Comida y salidas","Delivery","Suscripciones / compras online","Transporte","Gimnasio","Servicios (internet)","Alquiler","Personas (monto alto)","Monotributo / impuestos","Ropa","Salud","Transferencias personales (< $100.000)","Entre mis cuentas","Reserva \"Gastos\" de MP","Dólar MEP","Rendimientos MP","Otros"];
 const CHECKS=[["ccma","Ver la deuda en CCMA"],["estado","Confirmar si sigo activo o me dieron de baja"],["cbu","Cargar un CBU en “Declaración de CBU” (marcado para Mis Facilidades)"],["plan","Enviar el plan RG 5875 en “Mis Facilidades” antes del 30/10/2026"],["recat","Volver a inscribirme en el monotributo (categoría según lo que facturo)"],["debito","Débito automático de la cuota (vence el 20 de cada mes)"],["facturas","Emitir factura C por cada cobro de cliente"]];
-const DEFAULT_GOALS=[{id:"emergencia",nombre:"Fondo de emergencia",pct:10,objetivo:3000000},{id:"alquiler",nombre:"Depósito y mudanza",pct:5,objetivo:1700000}];
+const DEFAULT_GOALS=[{id:"emergencia",nombre:"Fondo de emergencia",pct:10,objetivo:1000000}];
 const DEFAULT_FIJOS=[];
 const DEFAULT_TOPES=[
  {id:"comida",nombre:"Comida",cats:["Supermercado","Almacén / verdulería","Comida y salidas","Delivery"],monto:400000},
@@ -673,7 +729,7 @@ function renderAll(){
   if(sel){renderKpis();renderBars();renderInsights();renderMovs()}else{$("#hero").innerHTML=`<span class="lbl">Ingreso neto</span><span class="big">$ 0</span><div class="row"><span>Subí el resumen de Mercado Pago (PDF) con el botón ↑ para empezar.</span></div>`}
   renderAhorro();renderAlquiler();renderCobros();renderPresu();
 }
-function showTab(t){tab=t;document.querySelectorAll(".tab").forEach(b=>b.setAttribute("aria-selected",b.dataset.t===t));["resumen","importar","movs","ahorro","presu","alquiler","mono","cobros","mas"].forEach(k=>$("#p-"+k).hidden=k!==t);const navMap={resumen:"resumen",movs:"movs",ahorro:"ahorro",importar:"importar"};document.querySelectorAll(".bnav [data-nav]").forEach(b=>b.setAttribute("aria-current",String((navMap[t]||"mas")===b.dataset.nav)));window.scrollTo(0,0);try{localStorage.setItem("lc-tab",t)}catch(e){}}
+function showTab(t){tab=t;document.querySelectorAll(".tab").forEach(b=>b.setAttribute("aria-selected",b.dataset.t===t));["resumen","importar","movs","ahorro","presu","alquiler","mono","cobros","mas","ia"].forEach(k=>$("#p-"+k).hidden=k!==t);if(t==="ia"&&typeof iaRender==="function")iaRender();const navMap={resumen:"resumen",movs:"movs",ahorro:"ahorro",importar:"importar"};document.querySelectorAll(".bnav [data-nav]").forEach(b=>b.setAttribute("aria-current",String((navMap[t]||"mas")===b.dataset.nav)));window.scrollTo(0,0);try{localStorage.setItem("lc-tab",t)}catch(e){}}
 document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>showTab(b.dataset.t));showTab(tab);
 $("#mes").onchange=e=>{sel=e.target.value;renderAll()};
 ["#f-tipo","#f-cat","#f-conf"].forEach(s=>$(s).onchange=renderMovs);$("#f-q").oninput=renderMovs;
@@ -766,6 +822,87 @@ renderAll();
   db.doc("sync/estado").onSnapshot(s=>{SYNC=s.exists?s.data():null;renderSync();if(sel)renderKpis()});
   db.doc("config/perfil").onSnapshot(s=>{CFG=s.exists?{...s.data()}:{};renderAhorro();renderAlquiler();renderPresu();renderAjustes();if(sel)renderKpis()});
 })();
+
+/* ---------- Asesor IA ---------- */
+var IA_SAMPLE=null,IA_TURNS=[],IA_CTL=null,IA_BUSY=false;
+function iaContexto(){
+  const L=[];const ms=monthsAvail().slice(0,3);
+  const s=saldoActual();if(s)L.push(`Dinero disponible hoy en Mercado Pago: ${fmt(s.monto)} (${s.txt}).`);
+  ms.forEach(m=>{const mv=movsMes(m),st=stats(mv);const by=spentByCat(m);
+    const cats=Object.entries(by).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]).slice(0,10).map(([c,v])=>`${c} ${fmt(v)}`).join("; ");
+    L.push(`\n${mesNombre(m)}: ingresos por trabajo ${fmt(st.ing)}, gastos ${fmt(st.gas)}, rendimientos ${fmt(st.rend)}, resultado ${fmt(st.res)}, plata enviada a personas (no cuenta como gasto) ${fmt(st.pers)}.\nGastos por categoría: ${cats||"sin gastos"}.`);
+    const top=mv.filter(x=>x.tipo==="gasto").sort((a,b)=>a.monto-b.monto).slice(0,8).map(x=>`${x.fecha} ${cpName(x)} ${fmt(x.monto)}`).join("; ");
+    if(top)L.push(`Gastos más grandes: ${top}.`)});
+  if(sel){const tr=topeRows(sel);if(tr.length)L.push(`\nTopes de ${mesNombre(sel)}: `+tr.map(t=>`${t.nombre} gastado ${fmt(t.s)} de ${fmt(t.monto)} (${t.p.toFixed(0)}%)`).join("; ")+".")}
+  const g=goals();if(g.length)L.push(`Objetivos de ahorro: `+g.map(x=>`${x.nombre}: ${x.pct}% de cada cobro, meta ${fmt(x.objetivo||0)}`).join("; ")+".");
+  const f=fijos().filter(x=>x.activo);if(f.length)L.push(`Gastos fijos mensuales: `+f.map(x=>`${x.nombre} ${fmt(x.monto)} (día ${x.dia})`).join("; ")+".");
+  const a=avgStats();if(a.n)L.push(`Promedio mensual (${a.n} meses): ingreso ${fmt(a.ing)}, salida total ${fmt(a.gas)}.`);
+  if(!ms.length)L.push("Todavía no hay movimientos cargados.");
+  return L.join("\n");
+}
+function iaReglas(){
+  const obj=(CFG.objetivoIA||"").trim();
+  return `Sos un asesor de finanzas personales dentro de una app argentina de ingresos y gastos (Mercado Pago). Hablás en español rioplatense, con voseo, cálido y directo.
+Tu trabajo: ayudar a la persona a lograr su objetivo con planes concretos basados en SUS números.
+Reglas:
+- Usá solo los datos de abajo. Si falta algo, decilo y pedí ese dato puntual.
+- Cuando hagas cuentas, mostralas paso a paso con montos en pesos ($ 1.234.567).
+- Respuestas cortas y accionables: pasos numerados, montos y plazos. Nada de relleno.
+- Si algo que quiere no cierra con sus números, decíselo con honestidad y proponé una alternativa realista.
+- No recomiendes comprar ni vender inversiones puntuales; podés explicar opciones en general y aclarar que no sos asesor financiero matriculado.
+- Montos en ARS. En la app, "Transferencias personales" son envíos a personas de menos de $100.000 que no se cuentan como ingreso ni gasto.
+${obj?`\nObjetivo que la persona definió: ${obj}`:""}
+
+Datos actuales de la app:
+${iaContexto()}`;
+}
+function iaRender(){
+  const box=$("#iaLog");if(!box)return;
+  const has=!!IA_SAMPLE;
+  $("#iaChat").hidden=!has;$("#iaExt").hidden=has;const cl=$("#iaClear");if(cl)cl.hidden=!has;
+  const o=$("#iaObj");if(o&&document.activeElement!==o)o.value=CFG.objetivoIA||"";
+  if(!has)return;
+  box.innerHTML=IA_TURNS.length?IA_TURNS.map((t,i)=>`<div class="iamsg ${t.role==="user"?"u":"a"}" data-i="${i}"></div>`).join(""):`<p class="note">Contale qué querés lograr o tocá una de las ideas de abajo. Ve tus números de los últimos meses.</p>`;
+  box.querySelectorAll(".iamsg").forEach(el=>{el.textContent=IA_TURNS[+el.dataset.i].content});
+  box.scrollTop=box.scrollHeight;
+  $("#iaSend").hidden=IA_BUSY;$("#iaStop").hidden=!IA_BUSY;$("#iaIn").disabled=IA_BUSY;
+}
+async function iaAsk(texto){
+  texto=String(texto||"").trim();if(!texto||IA_BUSY||!IA_SAMPLE)return;
+  IA_TURNS.push({role:"user",content:texto});
+  const ans={role:"assistant",content:"Pensando…"};IA_TURNS.push(ans);IA_BUSY=true;iaRender();
+  const hist=IA_TURNS.slice(0,-1).slice(-12);
+  IA_CTL=new AbortController();
+  const last=()=>$("#iaLog .iamsg:last-child");
+  try{
+    const {text,truncated}=await IA_SAMPLE([{role:"user",content:iaReglas()},...hist],{cache:false,signal:IA_CTL.signal,onText:({text})=>{ans.content=text;const el=last();if(el){el.textContent=text;$("#iaLog").scrollTop=$("#iaLog").scrollHeight}}});
+    ans.content=text+(truncated?"\n\n(Se cortó: pedime que siga.)":"");
+  }catch(e){
+    const msg={not_granted:"No diste permiso para usar Claude en esta página.",sampling_disabled:"La IA no está disponible en esta cuenta.",rate_limited:"Llegaste al límite de uso por ahora. Probá en un rato.",session_expired:"Tenés que volver a iniciar sesión en Claude.",refused:"No puedo ayudar con eso. Probá preguntarlo de otra forma."}[e&&e.code];
+    if(e&&e.code==="cancelled")ans.content=(e.text||"")+"\n\n(Frenado.)";
+    else ans.content=((e&&e.text)?e.text+"\n\n":"")+(msg||"Hubo un error de conexión. Probá de nuevo.");
+    if(e&&["not_granted","sampling_disabled","not_declared","capability_disabled","capability_removed"].includes(e.code)){IA_SAMPLE=null}
+  }finally{IA_BUSY=false;IA_CTL=null;iaRender()}
+}
+async function iaCopiar(destino){
+  const q=($("#iaQ").value||"").trim()||"¿Qué me recomendás hacer con mi plata este mes para lograr mi objetivo?";
+  const txt=iaReglas()+"\n\nMi pregunta: "+q;
+  let ok=false;try{await navigator.clipboard.writeText(txt);ok=true}catch(e){}
+  if(!ok){const t=$("#iaQ");const prev=t.value;t.value=txt;t.select();try{ok=document.execCommand("copy")}catch(e){}t.value=prev}
+  toast(ok?"Copiado. Pegalo en el chat que se abrió (mantené apretado → Pegar).":"No se pudo copiar automáticamente.");
+  window.open(destino==="gpt"?"https://chatgpt.com/":"https://claude.ai/new","_blank","noopener");
+}
+document.addEventListener("click",e=>{
+  const c=e.target.closest("[data-ia]");if(c){showTab("ia");if(IA_SAMPLE)iaAsk(c.dataset.ia);else{$("#iaQ").value=c.dataset.ia}return}
+  if(e.target.closest("#iaSend")){const i=$("#iaIn");const v=i.value;i.value="";iaAsk(v)}
+  if(e.target.closest("#iaStop"))IA_CTL?.abort();
+  if(e.target.closest("#iaClear")){if(IA_BUSY)IA_CTL?.abort();IA_TURNS=[];iaRender()}
+  const x=e.target.closest("[data-iaext]");if(x)iaCopiar(x.dataset.iaext);
+});
+document.addEventListener("keydown",e=>{if(e.target.id==="iaIn"&&e.key==="Enter"&&!e.shiftKey){e.preventDefault();$("#iaSend").click()}});
+document.addEventListener("change",async e=>{if(e.target.id==="iaObj"){await saveCfg({objetivoIA:e.target.value.trim()});toast("Objetivo guardado. El asesor lo va a tener en cuenta.")}});
+(async()=>{try{IA_SAMPLE=(window.claude&&window.claude.use)?await window.claude.use("sample"):null}catch(e){IA_SAMPLE=null}iaRender()})();
+iaRender();
 </script>
 </body>
 </html>
