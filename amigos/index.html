@@ -177,6 +177,17 @@ input[type=range]{width:100%;padding:0;accent-color:var(--accent)}
 .brandh{margin:0;line-height:0}.brandh .logo{width:40px;height:40px;color:var(--ink);display:block}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 [hidden]{display:none!important}
+.fisform{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+.mlist{display:grid;gap:6px}
+.mrow{display:grid;grid-template-columns:52px 1fr 120px 70px;align-items:center;gap:8px;font-size:14px}
+.mbar{height:10px;background:var(--line);border-radius:6px;overflow:hidden}.mbar>div{height:100%;background:var(--accent);border-radius:6px}
+.mval{text-align:right}.minp{width:100%;padding:6px 8px;font-size:14px}
+.msrc{text-align:right}
+@media (max-width:480px){.mrow{grid-template-columns:44px 1fr 100px;}.msrc{display:none}}
+.fbox{display:grid;gap:10px;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+.fact-acts{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.fact-acts input{flex:1;min-width:160px}
+.calm{font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin:14px 0 6px}
+
 .iawrap{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;min-width:0}
 .iawrap input,.iawrap textarea{width:100%;box-sizing:border-box;min-width:0}
 .iacta button{white-space:nowrap}
@@ -218,6 +229,10 @@ input[type=range]{width:100%;padding:0;accent-color:var(--accent)}
     <button class="tab" role="tab" data-t="ahorro">Ahorro</button>
     <button class="tab" role="tab" data-t="presu">Presupuesto</button>
     <button class="tab" role="tab" data-t="alquiler">Alquiler</button>
+    <button class="tab" role="tab" data-t="mono">Monotributo</button>
+    <button class="tab" role="tab" data-t="fact">Facturas</button>
+    <button class="tab" role="tab" data-t="cal">Calendario</button>
+    <button class="tab" role="tab" data-t="rep">Reportes</button>
     <button class="tab" role="tab" data-t="cobros">Cobros pendientes</button>
     <button class="tab" role="tab" data-t="ia">Asesor IA</button>
   </div>
@@ -242,7 +257,7 @@ input[type=range]{width:100%;padding:0;accent-color:var(--accent)}
       <div class="tile" id="monthTile"></div>
     </div>
     <div class="pair">
-      <div class="tile"><span class="lbl">Vencimientos</span><div id="dueHome"></div><button class="big" data-goto="presu">Ver gastos fijos</button></div>
+      <div class="tile"><span class="lbl">Vencimientos</span><div id="dueHome"></div><button class="big" data-goto="cal">Ver calendario</button></div>
       <div class="tile"><span class="lbl">Topes del mes</span><div id="topHome"></div><button class="big" data-goto="presu">Ver topes</button></div>
     </div>
     <div class="two">
@@ -327,18 +342,94 @@ input[type=range]{width:100%;padding:0;accent-color:var(--accent)}
   </section>
 
   <section class="panel" id="p-mono" hidden>
+    <div class="card" id="fisSetup">
+      <h2>Tu perfil fiscal</h2>
+      <div class="form fisform">
+        <label>Régimen<select id="fRegimen"><option value="monotributo">Monotributo</option><option value="ninguno">No estoy inscripto</option></select></label>
+        <label>Actividad<select id="fAct"><option value="servicios">Servicios</option><option value="bienes">Venta de bienes</option></select></label>
+        <label>Provincia<input type="text" id="fProv" list="provs" placeholder="Ej: Entre Ríos"></label>
+        <label>Categoría actual<select id="fCat"><option value="">No sé / ninguna</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option><option>H</option><option>I</option><option>J</option><option>K</option></select></label>
+        <label id="fIibbW">Ingresos Brutos por mes ($)<input type="number" id="fIibb" placeholder="Lo que pagás de IIBB"></label>
+      </div>
+      <datalist id="provs"><option>Buenos Aires</option><option>CABA</option><option>Catamarca</option><option>Chaco</option><option>Chubut</option><option>Córdoba</option><option>Corrientes</option><option>Entre Ríos</option><option>Formosa</option><option>Jujuy</option><option>La Pampa</option><option>La Rioja</option><option>Mendoza</option><option>Misiones</option><option>Neuquén</option><option>Río Negro</option><option>Salta</option><option>San Juan</option><option>San Luis</option><option>Santa Cruz</option><option>Santa Fe</option><option>Santiago del Estero</option><option>Tierra del Fuego</option><option>Tucumán</option></datalist>
+      <p class="note">En Entre Ríos el Ingreso Bruto se calcula solo. En otras provincias, poné lo que pagás por mes.</p>
+    </div>
     <div class="two">
       <div class="card" id="monoCard"></div>
-      <div class="card">
-        <h2>Ponerme al día con ARCA</h2>
-        <div id="deuda"></div>
-        <div id="checklist"></div>
-      </div>
+      <div class="card" id="monoAlert"></div>
+    </div>
+    <div class="card" id="monoMesesC">
+      <h2>Facturación de los últimos 12 meses</h2>
+      <div id="monoMeses" class="mlist"></div>
+      <p class="note">Los meses sin datos de Mercado Pago los podés completar a mano (por ejemplo, si cobraste en efectivo o en otro banco).</p>
+    </div>
+    <div class="card" id="monoDeuda" hidden>
+      <h2>Ponerme al día con ARCA</h2>
+      <div id="deuda"></div>
+      <div id="checklist"></div>
+    </div>
+    <div class="card" id="monoEsc">
+      <h2>Escala del monotributo</h2>
+      <div class="tablewrap"><table><thead><tr><th>Cat.</th><th class="r">Tope anual</th><th class="r">Cuota servicios</th><th class="r">Cuota venta de bienes</th></tr></thead><tbody id="escala"></tbody></table></div>
+      <p class="note">Escala de ARCA vigente desde el 1/8/2026. La cuota incluye impuesto, jubilación y obra social; no incluye Ingresos Brutos. Vence el día 20 de cada mes.</p>
+    </div>
+  </section>
+
+  <section class="panel" id="p-fact" hidden>
+    <div class="card">
+      <div class="goal-h"><h2>Facturas de <span id="factMes"></span></h2></div>
+      <div class="strip" id="factKpi"></div>
     </div>
     <div class="card">
-      <h2>Escala vigente: servicios (desde agosto 2026)</h2>
-      <div class="tablewrap"><table><thead><tr><th>Cat.</th><th class="r">Tope anual</th><th class="r">Cuota nacional</th><th class="r">IIBB Entre Ríos</th></tr></thead><tbody id="escala"></tbody></table></div>
-      <p class="note">Fuente: tabla ARCA publicada por iProfesional y Contadores en Red. Rige hasta la actualización de enero 2027. La cuota vence el día 20 de cada mes.</p>
+      <h2>Cobros por trabajo</h2>
+      <div class="tablewrap"><table><thead><tr><th>Fecha</th><th>De</th><th class="r">Monto</th><th>Estado</th><th></th></tr></thead><tbody id="factTb"></tbody></table></div>
+      <div class="fbox" id="factHelp" hidden></div>
+      <p class="note">Mercado Pago le informa tus cobros a ARCA: lo ideal es que cada cobro por trabajo tenga su factura. Si un cobro no era por trabajo (un reintegro, por ejemplo), marcalo como "No corresponde".</p>
+    </div>
+    <div class="card">
+      <h2>Facturas registradas</h2>
+      <div class="tablewrap"><table><thead><tr><th>Fecha</th><th>Número</th><th>Cliente</th><th class="r">Monto</th><th></th></tr></thead><tbody id="factList"></tbody></table></div>
+      <form class="form" id="addFact">
+        <label>Fecha<input type="date" id="af-f" required></label>
+        <label>Cliente<input type="text" id="af-c" required></label>
+        <label>Monto ($)<input type="number" id="af-m" required min="1"></label>
+        <label>N° de factura<input type="text" id="af-n"></label>
+        <button class="primary" type="submit">Agregar factura</button>
+      </form>
+      <p class="note">Sumá acá las facturas de cobros que no pasaron por Mercado Pago (efectivo, otro banco).</p>
+    </div>
+  </section>
+
+  <section class="panel" id="p-cal" hidden>
+    <div class="two">
+      <div class="card">
+        <div class="goal-h"><h2>Vencimientos</h2><span class="note">Próximos 30 días: <b class="num" id="calTot"></b></span></div>
+        <div id="calList"></div>
+        <button type="button" id="calIcs" class="big">Agregar al calendario del celu</button>
+      </div>
+      <div class="card">
+        <h2>Agregar un vencimiento</h2>
+        <form class="form" id="addEv">
+          <label>Qué vence<input type="text" id="ae-n" required placeholder="Ej: cuota tarjeta"></label>
+          <label>Fecha<input type="date" id="ae-f" required></label>
+          <label>Monto ($)<input type="number" id="ae-m"></label>
+          <label class="check"><input type="checkbox" id="ae-r"><span>Se repite todos los meses</span></label>
+          <button class="primary" type="submit">Agregar</button>
+        </form>
+        <p class="note">El monotributo, la recategorización y tus gastos fijos ya aparecen solos. Si un vencimiento de ARCA cae sábado o domingo, pasa al lunes.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="p-rep" hidden>
+    <div class="card">
+      <h2>Cierre de <span id="repMes"></span></h2>
+      <div id="repPrev"></div>
+      <div class="fact-acts">
+        <button type="button" class="primary" id="repHtml">Descargar informe (PDF)</button>
+        <button type="button" id="repCsv">Descargar movimientos (Excel)</button>
+      </div>
+      <p class="note">El informe trae resumen, gastos por categoría, monotributo y facturas del mes. Abrilo y tocá "Imprimir / Guardar PDF". Para cambiar de mes, usá el selector de arriba.</p>
     </div>
   </section>
 
@@ -403,6 +494,10 @@ input[type=range]{width:100%;padding:0;accent-color:var(--accent)}
       <button data-goto="presu">Presupuesto y gastos fijos <span>Topes y vencimientos</span></button>
       <button data-goto="importar">Subir resumen <span>PDF de Mercado Pago</span></button>
       <button data-goto="alquiler">Alquiler <span>¿Me da para alquilar?</span></button>
+      <button data-goto="mono">Monotributo <span>Categoría y recategorización</span></button>
+      <button data-goto="fact">Facturas <span>Cobros sin facturar</span></button>
+      <button data-goto="cal">Calendario <span>Todos tus vencimientos</span></button>
+      <button data-goto="rep">Reportes <span>Informe del mes en PDF y Excel</span></button>
       <button data-goto="cobros">Cobros pendientes <span>Quién me debe</span></button>
     </div>
     <div class="card" style="margin-top:16px">
@@ -727,9 +822,9 @@ function renderAll(){
   const av=monthsAvail();if(!sel||!av.includes(sel))sel=av[0]||"";
   $("#mes").innerHTML=av.map(m=>`<option value="${m}" ${m===sel?"selected":""}>${mesNombre(m)}</option>`).join("");
   if(sel){renderKpis();renderBars();renderInsights();renderMovs()}else{$("#hero").innerHTML=`<span class="lbl">Ingreso neto</span><span class="big">$ 0</span><div class="row"><span>Subí el resumen de Mercado Pago (PDF) con el botón ↑ para empezar.</span></div>`}
-  renderAhorro();renderAlquiler();renderCobros();renderPresu();
+  renderAhorro();renderAlquiler();renderMono();renderCobros();renderPresu();
 }
-function showTab(t){tab=t;document.querySelectorAll(".tab").forEach(b=>b.setAttribute("aria-selected",b.dataset.t===t));["resumen","importar","movs","ahorro","presu","alquiler","mono","cobros","mas","ia"].forEach(k=>$("#p-"+k).hidden=k!==t);if(t==="ia"&&typeof iaRender==="function")iaRender();const navMap={resumen:"resumen",movs:"movs",ahorro:"ahorro",importar:"importar"};document.querySelectorAll(".bnav [data-nav]").forEach(b=>b.setAttribute("aria-current",String((navMap[t]||"mas")===b.dataset.nav)));window.scrollTo(0,0);try{localStorage.setItem("lc-tab",t)}catch(e){}}
+function showTab(t){tab=t;document.querySelectorAll(".tab").forEach(b=>b.setAttribute("aria-selected",b.dataset.t===t));["resumen","importar","movs","ahorro","presu","alquiler","mono","cobros","mas","ia","fact","cal","rep"].forEach(k=>$("#p-"+k).hidden=k!==t);if(t==="ia"&&typeof iaRender==="function")iaRender();const navMap={resumen:"resumen",movs:"movs",ahorro:"ahorro",importar:"importar"};document.querySelectorAll(".bnav [data-nav]").forEach(b=>b.setAttribute("aria-current",String((navMap[t]||"mas")===b.dataset.nav)));window.scrollTo(0,0);try{localStorage.setItem("lc-tab",t)}catch(e){}}
 document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>showTab(b.dataset.t));showTab(tab);
 $("#mes").onchange=e=>{sel=e.target.value;renderAll()};
 ["#f-tipo","#f-cat","#f-conf"].forEach(s=>$(s).onchange=renderMovs);$("#f-q").oninput=renderMovs;
@@ -820,8 +915,253 @@ renderAll();
   db.collection("cobros").onSnapshot(s=>{COBROS=s.docs;renderCobros()});
   db.collection("reglas").onSnapshot(s=>{REGLAS=s.docs});
   db.doc("sync/estado").onSnapshot(s=>{SYNC=s.exists?s.data():null;renderSync();if(sel)renderKpis()});
-  db.doc("config/perfil").onSnapshot(s=>{CFG=s.exists?{...s.data()}:{};renderAhorro();renderAlquiler();renderPresu();renderAjustes();if(sel)renderKpis()});
+  db.doc("config/perfil").onSnapshot(s=>{CFG=s.exists?{...s.data()}:{};renderAhorro();renderAlquiler();renderMono();renderPresu();renderAjustes();if(sel)renderKpis()});
 })();
+
+var FIS_READY=false;
+/* ---------- Módulos fiscales: monotributo, facturas, calendario, reportes ---------- */
+// Escala vigente desde 01/08/2026 (ARCA). [cat, tope anual, cuota servicios, cuota venta de bienes, IIBB Entre Ríos]
+var ESC26=[["A",12009410.45,49527.18,49527.18,10843],["B",17595182.74,56379.08,56379.08,16242],["C",24670494.31,66020.12,64530.58,22785],["D",30628651.43,84612.93,82564.81,28639],["E",36028231.33,119811.45,108267.51,39587],["F",45151659.41,150784.21,129930.65,51681],["G",53995798.87,230312.94,158815.05,97344],["H",81924660.37,522706.68,317895.01,159051],["I",91699761.90,963747.86,474992.78,310752],["J",105012519.20,1167299.76,580793.69,355866],["K",126610838.75,1614446.04,702103.24,429070]];
+var ESC_VIG="vigente desde el 1/8/2026 (se actualiza en febrero y agosto)";
+var FACTS=[];
+function byFecha(a,b){return String(a.fecha).localeCompare(String(b.fecha))}
+var fis=()=>({regimen:"monotributo",actividad:"servicios",provincia:"",categoria:"",iibb:0,previos:{},...(CFG.fiscal||{})});
+var addMes=(m,n)=>{let [y,mm]=m.split("-").map(Number);mm+=n;while(mm<1){mm+=12;y--}while(mm>12){mm-=12;y++}return `${y}-${String(mm).padStart(2,"0")}`};
+var mesCorto=m=>["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"][+m.slice(5,7)-1]+" "+m.slice(2,4);
+var facturas=()=>FACTS.map(d=>({id:d.id,...d.data()}));
+function cobrosTrabajo(mes){return movsMes(mes).filter(m=>m.tipo==="ingreso"&&m.monto>0&&!/devoluci/.test(norm(m.desc)))}
+function facturadoMes(mes){
+  const f=facturas().filter(x=>String(x.fecha||"").slice(0,7)===mes).reduce((s,x)=>s+(+x.monto||0),0);
+  const hay=monthsAvail().includes(mes);
+  const c=hay?cobrosTrabajo(mes).reduce((s,m)=>s+m.monto,0):0;
+  const prev=+(fis().previos||{})[mes]||0;
+  if(!hay&&!f)return {monto:prev,fuente:prev?"manual":"vacio",fact:0,cobr:0};
+  return {monto:Math.max(f,c),fuente:f>=c&&f>0?"facturas":"cobros",fact:f,cobr:c};
+}
+function monoCalc(){
+  const F=fis(),hoy=todayStr(),M=hoy.slice(0,7);
+  const meses=[...Array(12)].map((_,i)=>addMes(M,i-11));
+  const rows=meses.map(m=>({mes:m,...facturadoMes(m)}));
+  const conDatos=rows.filter(r=>r.fuente!=="vacio");
+  const suma=rows.reduce((s,r)=>s+r.monto,0);
+  const completos=conDatos.filter(r=>r.mes!==M);
+  const base=completos.length?completos:conDatos;
+  const prom=base.length?base.reduce((s,r)=>s+r.monto,0)/base.length:0;
+  const anualizado=conDatos.length<12;
+  const anual=anualizado?prom*12:suma;
+  const col=F.actividad==="bienes"?3:2;
+  const catDe=v=>ESC26.find(e=>v<=e[1])||null;
+  const cat=catDe(anual);
+  const decl=ESC26.find(e=>e[0]===F.categoria)||null;
+  const ref=decl||cat;
+  const iibb=e=>e?((/entre r/i.test(F.provincia||"")?e[4]:+F.iibb||0)):0;
+  const cuota=e=>e?e[col]+iibb(e):0;
+  const ult11=rows.slice(0,11).reduce((s,r)=>s+r.monto,0);
+  const margenMes=ref?ref[1]-ult11:0;
+  // próxima recategorización
+  const y=+hoy.slice(0,4),md=hoy.slice(5);
+  let recat,periodo;
+  if(md<="02-05"){recat=`${y}-02-05`;periodo=`enero a diciembre ${y-1}`}
+  else if(md<="08-05"){recat=`${y}-08-05`;periodo=`julio ${y-1} a junio ${y}`}
+  else{recat=`${y+1}-02-05`;periodo=`enero a diciembre ${y}`}
+  return {F,rows,suma,prom,anual,anualizado,conDatos:conDatos.length,cat,decl,ref,cuota,iibb,col,margenMes,recat,periodo,M};
+}
+function renderMono(){if(!FIS_READY)return;
+  if(!$("#monoCard"))return;
+  const C=monoCalc(),F=C.F;
+  // perfil
+  const s=$("#fisSetup");
+  if(s&&!s.contains(document.activeElement)){
+    $("#fRegimen").value=F.regimen||"monotributo";$("#fAct").value=F.actividad||"servicios";$("#fProv").value=F.provincia||"";$("#fCat").value=F.categoria||"";$("#fIibb").value=F.iibb||"";
+  }
+  $("#fIibbW").hidden=/entre r/i.test(F.provincia||"");
+  const activo=F.regimen==="monotributo";
+  ["monoCard","monoAlert","monoMesesC","monoEsc"].forEach(id=>{const el=$("#"+id);if(el)el.hidden=!activo});
+  if(!activo)return;
+  const cat=C.cat,usado=cat?Math.min(100,C.anual/cat[1]*100):100;
+  $("#monoCard").innerHTML=`<h2>Tu categoría</h2>
+   <div class="strip"><div class="kpi"><span class="lbl">Facturado últimos 12 meses</span><span class="val">${fmt(C.suma)}</span><span class="foot">${C.conDatos} de 12 meses con datos</span></div>
+   <div class="kpi"><span class="lbl">${C.anualizado?"Proyección anual":"Ingresos anuales"}</span><span class="val">${fmt(C.anual)}</span><span class="foot">${C.anualizado?`Promedio ${fmt(C.prom)} × 12`:"Suma de los 12 meses"}</span></div></div>
+   ${cat?`<div>Te corresponde la <b>categoría ${cat[0]}</b> (tope ${fmt(cat[1])}). Usás el <b class="num">${usado.toFixed(0)}%</b> del tope.</div>
+   <div class="prog"><div style="width:${usado}%"></div></div>
+   <div class="calc"><span>Cuota ${F.actividad==="bienes"?"venta de bienes":"servicios"} cat. ${cat[0]}</span><span class="num">${fmt(cat[C.col])}</span><span>+ Ingresos Brutos${F.provincia?" "+esc(F.provincia):""}</span><span class="num">${fmt(C.iibb(cat))}</span><span><b>= Total por mes</b></span><span class="num"><b>${fmt(C.cuota(cat))}</b></span></div>`
+   :`<div class="insight r"><span class="dot"></span><span>Tus ingresos superan el tope de la categoría K (${fmt(ESC26[10][1])}). Quedarías excluido del monotributo: hablalo con un contador.</span></div>`}
+   <p class="note">Se toma el mayor entre lo que cobraste por trabajo en Mercado Pago y lo que facturaste cada mes. Escala ${ESC_VIG}.</p>`;
+  // alertas
+  const A=[];
+  const dias=Math.round((new Date(C.recat+"T12:00")-new Date(todayStr()+"T12:00"))/864e5);
+  if(C.decl&&cat&&cat[1]>C.decl[1])A.push(["r",`Te pasaste de tu categoría <b>${C.decl[0]}</b>: con estos números te corresponde la <b>${cat[0]}</b>. Recategorizate antes del <b>${fecha(C.recat)}</b> (faltan ${dias} días). La cuota pasa de ${fmt(C.cuota(C.decl))} a ${fmt(C.cuota(cat))} por mes.`]);
+  else if(C.decl&&cat&&cat[1]<C.decl[1])A.push(["g",`Podrías <b>bajar a la categoría ${cat[0]}</b> en la próxima recategorización (antes del ${fecha(C.recat)}) y pagar ${fmt(C.cuota(C.decl)-C.cuota(cat))} menos por mes.`]);
+  if(C.ref){const pct=C.anual/C.ref[1]*100;
+    if(C.margenMes<=0)A.push(["r",`Con lo facturado en los últimos 11 meses ya llegaste al tope de la ${C.ref[0]}. Todo lo que factures este mes te sube de categoría.`]);
+    else A.push([pct>=85?"w":"g",`Este mes podés facturar hasta <b>${fmt(C.margenMes)}</b> sin pasarte del tope de la categoría ${C.ref[0]}.<br><span class="note">Cuenta: tope ${fmt(C.ref[1])} − facturado en los 11 meses anteriores ${fmt(C.ref[1]-C.margenMes)}.</span>`]);}
+  A.push(["b",`Próxima recategorización: hasta el <b>${fecha(C.recat)}</b> (faltan ${dias} días). Se mira lo facturado de ${C.periodo}.`]);
+  if(!C.decl)A.push(["b",`Cargá tu categoría actual en "Tu perfil fiscal" para saber si te tenés que recategorizar.`]);
+  const sinF=sinFacturarResumen();
+  if(sinF.n)A.push(["w",`Tenés <b>${sinF.n} cobro${sinF.n>1?"s":""} sin factura</b> (${fmt(sinF.monto)}) en los últimos 3 meses. Mercado Pago le informa tus cobros a ARCA. <button class="linkbtn" data-goto="fact">Ver facturas</button>`]);
+  $("#monoAlert").innerHTML=`<h2>Qué tenés que hacer</h2>`+A.map(([k,t])=>`<div class="insight ${k}"><span class="dot"></span><span>${t}</span></div>`).join("");
+  // 12 meses
+  const mx=Math.max(1,...C.rows.map(r=>r.monto));
+  $("#monoMeses").innerHTML=C.rows.map(r=>{const editable=r.fuente==="vacio"||r.fuente==="manual";return `<div class="mrow"><span class="mlbl">${mesCorto(r.mes)}</span><div class="mbar"><div style="width:${r.monto/mx*100}%"></div></div>${editable?`<input type="number" class="minp" data-prev="${r.mes}" value="${(+(F.previos||{})[r.mes])||""}" placeholder="$ a mano" aria-label="Facturado en ${mesNombre(r.mes)}">`:`<span class="num mval">${fmt(r.monto)}</span>`}<span class="note msrc">${r.fuente==="facturas"?"facturas":r.fuente==="cobros"?"cobros MP":r.fuente==="manual"?"a mano":"sin datos"}</span></div>`}).join("");
+  // escala
+  $("#escala").innerHTML=ESC26.map(e=>`<tr ${cat&&e[0]===cat[0]?'style="background:var(--accent-soft)"':""}><td><b>${e[0]}</b>${C.decl&&e[0]===C.decl[0]?' <span class="chip grey">la tuya</span>':""}</td><td class="r num">${fmt(e[1])}</td><td class="r num">${fmt(e[2])}</td><td class="r num">${fmt(e[3])}</td></tr>`).join("");
+  // deuda (solo si existe)
+  const dw=$("#monoDeuda");if(dw){dw.hidden=!CFG.deuda;if(CFG.deuda){const D=CFG.deuda;$("#deuda").innerHTML=`<div class="insight b"><span class="dot"></span><span><b>${esc(D.estado)}</b>. Deuda al ${esc(D.fecha)}: <b class="num">${fmt(D.total)}</b> (capital ${fmt(D.capital)} + intereses ${fmt(D.intereses)}), ${esc(D.periodos)}. ${esc(D.plan||"")}</span></div>`;const ck=CFG.checks||{};$("#checklist").innerHTML=CHECKS.map(([k,t])=>`<label class="check"><input type="checkbox" data-ck="${k}" ${ck[k]?"checked":""}><span>${t}</span></label>`).join("")}}
+}
+async function saveFis(patch){await saveCfg({fiscal:{...fis(),...patch}});renderMono();renderCal();renderFact()}
+
+/* ---------- Facturas ---------- */
+function estadoCobro(m){
+  const f=facturas().find(x=>x.cobroId===m.id);if(f)return {k:"ok",f};
+  if((CFG.noFact||[]).includes(m.id))return {k:"no"};
+  return {k:"sin"};
+}
+function sinFacturarResumen(){
+  const M=todayStr().slice(0,7),ms=[M,addMes(M,-1),addMes(M,-2)];
+  const L=ms.flatMap(m=>cobrosTrabajo(m)).filter(m=>estadoCobro(m).k==="sin");
+  return {n:L.length,monto:L.reduce((s,m)=>s+m.monto,0),list:L};
+}
+var FACT_OPEN=null;
+function renderFact(){if(!FIS_READY)return;
+  if(!$("#factTb"))return;
+  const mes=sel||todayStr().slice(0,7);
+  const cob=cobrosTrabajo(mes).sort(byFecha);
+  const fm=facturas().filter(x=>String(x.fecha||"").slice(0,7)===mes).sort((a,b)=>String(b.fecha).localeCompare(String(a.fecha)));
+  const tc=cob.reduce((s,m)=>s+m.monto,0),tf=fm.reduce((s,x)=>s+(+x.monto||0),0);
+  const sin=cob.filter(m=>estadoCobro(m).k==="sin");
+  $("#factMes").textContent=mesNombre(mes);
+  $("#factKpi").innerHTML=`<div class="kpi"><span class="lbl">Cobrado por trabajo</span><span class="val">${fmt(tc)}</span><span class="foot">${cob.length} cobros</span></div>
+   <div class="kpi"><span class="lbl">Facturado</span><span class="val">${fmt(tf)}</span><span class="foot">${fm.length} facturas</span></div>
+   <div class="kpi"><span class="lbl">Sin facturar</span><span class="val ${sin.length?"neg":""}">${fmt(sin.reduce((s,m)=>s+m.monto,0))}</span><span class="foot">${sin.length} cobros</span></div>`;
+  $("#factTb").innerHTML=cob.length?cob.map(m=>{const st=estadoCobro(m),open=FACT_OPEN===m.id;
+    return `<tr><td class="num">${fecha(m.fecha)}</td><td>${esc(cpName(m))}</td><td class="r num">${fmt(m.monto)}</td><td>${st.k==="ok"?`<span class="chip">Factura ${esc(st.f.numero||"hecha")}</span>`:st.k==="no"?`<span class="chip grey">No corresponde</span>`:`<span class="chip warn">Sin factura</span>`}</td>
+    <td>${st.k==="sin"?`<button data-fopen="${m.id}">${open?"Cerrar":"Facturar"}</button>`:`<button data-fundo="${m.id}">Deshacer</button>`}</td></tr>
+`}).join(""):`<tr><td colspan="5" class="empty">No hay cobros por trabajo en ${mesNombre(mes)}.</td></tr>`;
+
+  const om=FACT_OPEN&&cob.find(x=>x.id===FACT_OPEN);const hb=$("#factHelp");
+  if(hb){if(om){const m=om;hb.hidden=false;hb.innerHTML=`<h3>Factura para ${esc(cpName(m))}</h3>
+      <div class="calc"><span>Comprobante</span><span>Factura C</span><span>Fecha</span><span class="num">${fecha(m.fecha)}</span><span>Cliente</span><span>${esc(cpName(m))}</span><span>Concepto</span><span>Servicios</span><span>Importe</span><span class="num"><b>${fmt(m.monto)}</b></span></div>
+      <p class="note">En ARCA: Comprobantes en línea → Generar comprobantes → Factura C. Si el importe es alto, ARCA te pide el DNI o CUIT del cliente.</p>
+      <div class="fact-acts"><button data-fcopy="${m.id}">Copiar datos</button><a class="btnlike" href="https://auth.afip.gob.ar/contribuyente_/login.xhtml" target="_blank" rel="noopener">Abrir ARCA</a></div>
+      <div class="fact-acts"><input type="text" id="fnum-${m.id}" placeholder="N° de factura (ej: 00001-00000012)"><button class="primary" data-fdone="${m.id}">Ya la hice</button><button data-fno="${m.id}">No corresponde</button></div>
+    `}else{hb.hidden=true;hb.innerHTML=""}}
+  $("#factList").innerHTML=fm.length?fm.map(x=>`<tr><td class="num">${fecha(x.fecha)}</td><td>${esc(x.numero||"—")}</td><td>${esc(x.cliente||"")}</td><td class="r num">${fmt(+x.monto||0)}</td><td><button data-fdel="${x.id}" aria-label="Borrar factura">Borrar</button></td></tr>`).join(""):`<tr><td colspan="5" class="empty">Todavía no registraste facturas este mes.</td></tr>`;
+}
+function datosFactura(m){return `Factura C\nFecha: ${fecha(m.fecha)}\nCliente: ${cpName(m)}\nConcepto: Servicios\nImporte: ${fmt(m.monto)}`}
+async function copiar(t){try{await navigator.clipboard.writeText(t);return true}catch(e){return false}}
+var movById=id=>allMovs().find(m=>m.id===id);
+
+/* ---------- Calendario ---------- */
+var habil=d=>{const x=new Date(d+"T12:00");const w=x.getDay();if(w===6)x.setDate(x.getDate()+2);if(w===0)x.setDate(x.getDate()+1);return x.toISOString().slice(0,10)};
+function calEvents(dias=62){
+  const hoy=todayStr(),fin=new Date(hoy+"T12:00");fin.setDate(fin.getDate()+dias);const finS=fin.toISOString().slice(0,10);
+  const ev=[],F=fis(),C=monoCalc(),M=hoy.slice(0,7),meses=[M,addMes(M,1),addMes(M,2)];
+  const ref=C.decl||C.cat;
+  if(F.regimen==="monotributo"&&ref)meses.forEach(m=>ev.push({fecha:habil(`${m}-20`),nombre:`Cuota monotributo (cat. ${ref[0]})`,monto:C.cuota(ref),tipo:"fiscal"}));
+  [`${hoy.slice(0,4)}-02-05`,`${hoy.slice(0,4)}-08-05`,`${+hoy.slice(0,4)+1}-02-05`].forEach(d=>{if(F.regimen==="monotributo")ev.push({fecha:habil(d),nombre:"Recategorización monotributo",tipo:"fiscal",nota:"Revisá tu categoría con lo facturado"})});
+  fijos().filter(f=>f.activo&&!/monotributo/i.test(f.nombre)).forEach(f=>meses.forEach(m=>{const dd=Math.min(+f.dia||1,28);const st=m===M?fijoStatus(f,m):null;ev.push({fecha:`${m}-${String(dd).padStart(2,"0")}`,nombre:f.nombre,monto:+f.monto||0,tipo:"fijo",pagado:!!(st&&st.paid)})}));
+  (CFG.eventos||[]).forEach(e=>{if(e.mensual){meses.forEach(m=>ev.push({fecha:`${m}-${String(Math.min(+e.fecha.slice(8),28)).padStart(2,"0")}`,nombre:e.nombre,monto:+e.monto||0,tipo:"propio",id:e.id}))}else ev.push({fecha:e.fecha,nombre:e.nombre,monto:+e.monto||0,tipo:"propio",id:e.id})});
+  return ev.filter(e=>e.fecha>=hoy&&e.fecha<=finS).sort((a,b)=>a.fecha.localeCompare(b.fecha));
+}
+function diasHasta(d){return Math.round((new Date(d+"T12:00")-new Date(todayStr()+"T12:00"))/864e5)}
+function cuando(d){const n=diasHasta(d);return n===0?"hoy":n===1?"mañana":`en ${n} días`}
+function renderCal(){if(!FIS_READY)return;
+  const ev=calEvents(62);
+  if($("#calList")){
+    let last="";
+    $("#calList").innerHTML=ev.length?ev.map(e=>{const m=e.fecha.slice(0,7),h=m!==last?`<h3 class="calm">${mesNombre(m)}</h3>`:"";last=m;
+      return h+`<div class="due ${e.pagado?"excl":""}"><span class="dot2 ${e.tipo==="fiscal"?"b":diasHasta(e.fecha)<=3?"w":"g"}"></span><span><b>${fecha(e.fecha).slice(0,5)}</b> · ${esc(e.nombre)}<br><span class="note">${e.pagado?"Pagado":cuando(e.fecha)}${e.nota?" · "+esc(e.nota):""}</span></span><span class="num">${e.monto?fmt(e.monto):""}${e.tipo==="propio"?` <button class="linkbtn" data-evdel="${e.id}" aria-label="Borrar">✕</button>`:""}</span></div>`}).join(""):`<p class="empty">No hay vencimientos en los próximos 2 meses.</p>`;
+    const tot=ev.filter(e=>!e.pagado&&diasHasta(e.fecha)<=30).reduce((s,e)=>s+(e.monto||0),0);
+    $("#calTot").textContent=fmt(tot);
+  }
+  // inicio: próximos 10 días
+  const h=$("#dueHome");if(h){const p=ev.filter(e=>!e.pagado&&diasHasta(e.fecha)<=10).slice(0,4);
+    h.innerHTML=p.length?p.map(e=>`<div class="due"><span class="dot2 ${diasHasta(e.fecha)<=3?"w":e.tipo==="fiscal"?"b":"g"}"></span><span>${esc(e.nombre)}<br><span class="note">${fecha(e.fecha).slice(0,5)} · ${cuando(e.fecha)}</span></span><span class="num">${e.monto?fmt(e.monto):""}</span></div>`).join(""):`<p class="empty">Nada vence en los próximos 10 días.</p>`;
+    const b=h.parentElement&&h.parentElement.querySelector('button[data-goto="presu"]');if(b){b.dataset.goto="cal";b.textContent="Ver calendario"}}
+}
+function icsDe(ev){
+  const st=d=>d.replace(/-/g,"");const nx=d=>{const x=new Date(d+"T12:00");x.setDate(x.getDate()+1);return st(x.toISOString().slice(0,10))};
+  const now=new Date().toISOString().replace(/[-:]/g,"").slice(0,15)+"Z";
+  const escI=s=>String(s).replace(/[,;\\]/g,m=>"\\"+m);
+  return ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Libro de Caja//ES","CALSCALE:GREGORIAN",...ev.flatMap((e,i)=>["BEGIN:VEVENT",`UID:lc-${st(e.fecha)}-${i}@librodecaja`,`DTSTAMP:${now}`,`DTSTART;VALUE=DATE:${st(e.fecha)}`,`DTEND;VALUE=DATE:${nx(e.fecha)}`,`SUMMARY:${escI(e.nombre+(e.monto?" "+fmt(e.monto):""))}`,"BEGIN:VALARM","ACTION:DISPLAY","DESCRIPTION:Vencimiento","TRIGGER:-P2D","END:VALARM","END:VEVENT"]),"END:VCALENDAR"].join("\r\n");
+}
+async function guardarArchivo(nombre,data,tipo){
+  try{const d=window.claude&&window.claude.use?await window.claude.use("downloads"):null;if(d){await d.save({filename:nombre,data});return true}}catch(e){if(e&&e.code==="declined")return false}
+  try{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([data],{type:tipo}));a.download=nombre;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),3000);return true}catch(e){toast("No se pudo descargar el archivo.");return false}
+}
+
+/* ---------- Reportes ---------- */
+function reporteDatos(mes){
+  const mv=movsMes(mes),st=stats(mv),by=spentByCat(mes),C=monoCalc();
+  const cats=Object.entries(by).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]);
+  const cob=cobrosTrabajo(mes),fm=facturas().filter(x=>String(x.fecha||"").slice(0,7)===mes);
+  const sinF=cob.filter(m=>estadoCobro(m).k==="sin");
+  const ap=CFG.apartados||{};const apart=mv.reduce((s,m)=>s+Object.values(ap[m.id]||{}).reduce((x,v)=>x+(+v||0),0),0);
+  return {mes,mv,st,cats,cob,fm,sinF,apart,C};
+}
+function renderRep(){if(!FIS_READY)return;
+  if(!$("#repPrev"))return;
+  const mes=sel||todayStr().slice(0,7),R=reporteDatos(mes);
+  $("#repMes").textContent=mesNombre(mes);
+  $("#repPrev").innerHTML=`<div class="calc"><span>Ingresos por trabajo</span><span class="num">${fmt(R.st.ing)}</span><span>+ Rendimientos</span><span class="num">${fmt(R.st.rend)}</span><span>− Gastos</span><span class="num neg">${fmt(-R.st.gas)}</span><span><b>= Resultado del mes</b></span><span class="num"><b>${fmt(R.st.res)}</b></span></div>
+   <p class="note">${R.mv.length} movimientos · ${R.cob.length} cobros de trabajo · ${R.fm.length} facturas registradas${R.sinF.length?` · <b>${R.sinF.length} cobros sin factura</b>`:""}.</p>`;
+}
+function reporteHTML(mes){
+  const R=reporteDatos(mes),C=R.C,ref=C.decl||C.cat;
+  const tr=(a,b,c="")=>`<tr><td>${a}</td><td class="r ${c}">${b}</td></tr>`;
+  const nombre=esc(CFG.minombre||"");
+  return `<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Informe ${mesNombre(mes)}</title><style>
+body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#111;margin:32px;max-width:760px}h1{font-size:24px;margin:0 0 4px}h2{font-size:16px;margin:28px 0 8px;border-bottom:2px solid #111;padding-bottom:4px}
+table{width:100%;border-collapse:collapse;font-size:13px}td,th{padding:6px 4px;border-bottom:1px solid #ddd;text-align:left}.r{text-align:right;font-variant-numeric:tabular-nums}.neg{color:#b23a3a}.tot td{font-weight:700;border-top:2px solid #111}.note{color:#555;font-size:12px}
+@media print{body{margin:12mm}button{display:none}}</style></head><body>
+<button onclick="print()" style="float:right;padding:8px 14px">Imprimir / Guardar PDF</button>
+<h1>Informe mensual · ${mesNombre(mes)}</h1><p class="note">${nombre?nombre+" · ":""}Generado el ${fecha(todayStr())} con Libro de Caja. Datos de Mercado Pago.</p>
+<h2>Resumen</h2><table>${tr("Ingresos por trabajo",fmt(R.st.ing))}${tr("Rendimientos",fmt(R.st.rend))}${tr("Gastos",fmt(-R.st.gas),"neg")}<tr class="tot"><td>Resultado del mes</td><td class="r">${fmt(R.st.res)}</td></tr>${tr("Enviado a personas (no cuenta como gasto)",fmt(R.st.pers))}${R.apart?tr("Apartado para ahorro",fmt(R.apart)):""}</table>
+<h2>Gastos por categoría</h2><table>${R.cats.map(([c,v])=>tr(esc(c),fmt(v))).join("")||"<tr><td>Sin gastos</td></tr>"}</table>
+<h2>Monotributo</h2><table>${tr("Facturado últimos 12 meses",fmt(C.suma))}${tr(C.anualizado?"Proyección anual":"Ingresos anuales",fmt(C.anual))}${tr("Categoría que corresponde",C.cat?C.cat[0]:"Supera K")}${C.decl?tr("Categoría declarada",C.decl[0]):""}${ref?tr("Cuota mensual estimada",fmt(C.cuota(ref))):""}${tr("Próxima recategorización",fecha(C.recat))}</table>
+<h2>Cobros de trabajo y facturas</h2><table><tr><th>Fecha</th><th>Cliente</th><th class="r">Monto</th><th>Factura</th></tr>${R.cob.map(m=>{const s=estadoCobro(m);return `<tr><td>${fecha(m.fecha)}</td><td>${esc(cpName(m))}</td><td class="r">${fmt(m.monto)}</td><td>${s.k==="ok"?esc(s.f.numero||"Sí"):s.k==="no"?"No corresponde":"<b>Sin factura</b>"}</td></tr>`}).join("")||"<tr><td colspan=4>Sin cobros</td></tr>"}</table>
+<p class="note">Este informe es un resumen de tus movimientos y no reemplaza una certificación de ingresos firmada por un contador.</p></body></html>`;
+}
+function csvMes(mes){
+  const q=v=>{const s=String(v??"");return /[;"\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s};
+  const rows=[["Fecha","Descripción","Monto","Tipo","Categoría","Factura"],...movsMes(mes).sort(byFecha).map(m=>{const s=m.tipo==="ingreso"?estadoCobro(m):null;return [m.fecha,m.desc,String(m.monto).replace(".",","),TIPOS[m.tipo]||m.tipo,m.cat,s?(s.k==="ok"?(s.f.numero||"Sí"):s.k==="no"?"No corresponde":"Sin factura"):""]})];
+  return "﻿"+rows.map(r=>r.map(q).join(";")).join("\r\n");
+}
+
+/* ---------- Eventos ---------- */
+document.addEventListener("change",async e=>{
+  const t=e.target;
+  if(t.closest&&t.closest("#fisSetup")){
+    const p={regimen:$("#fRegimen").value,actividad:$("#fAct").value,provincia:$("#fProv").value.trim(),categoria:$("#fCat").value,iibb:+$("#fIibb").value||0};
+    await saveFis(p);toast("Perfil fiscal guardado.");return}
+  if(t.dataset&&t.dataset.prev){const pv={...(fis().previos||{})};const v=+t.value||0;if(v)pv[t.dataset.prev]=v;else delete pv[t.dataset.prev];await saveFis({previos:pv});return}
+});
+document.addEventListener("click",async e=>{
+  const b=e.target.closest("button,a");if(!b)return;const d=b.dataset;
+  if(d.fopen){FACT_OPEN=FACT_OPEN===d.fopen?null:d.fopen;renderFact();const hb=$("#factHelp");if(FACT_OPEN&&hb)hb.scrollIntoView({behavior:"smooth",block:"center"});return}
+  if(d.fcopy){const m=movById(d.fcopy);if(m)toast(await copiar(datosFactura(m))?"Datos copiados.":"No se pudo copiar.");return}
+  if(d.fdone){const m=movById(d.fdone);if(!m||!db)return;const num=($("#fnum-"+d.fdone)||{}).value||"";await db.collection("facturas").add({fecha:m.fecha,cliente:cpName(m),concepto:"Servicios",monto:m.monto,numero:num.trim(),cobroId:m.id,tipo:"C"});FACT_OPEN=null;toast("Factura registrada.");return}
+  if(d.fno){await saveCfg({noFact:[...new Set([...(CFG.noFact||[]),d.fno])]});FACT_OPEN=null;renderFact();renderMono();return}
+  if(d.fundo){const f=facturas().find(x=>x.cobroId===d.fundo);if(f&&db)await db.doc("facturas/"+f.id).delete();if((CFG.noFact||[]).includes(d.fundo))await saveCfg({noFact:(CFG.noFact||[]).filter(x=>x!==d.fundo)});renderFact();renderMono();return}
+  if(d.fdel){if(!confirm("¿Borrar esta factura del registro? (No la anula en ARCA)"))return;if(db)await db.doc("facturas/"+d.fdel).delete();return}
+  if(d.evdel){await saveCfg({eventos:(CFG.eventos||[]).filter(x=>x.id!==d.evdel)});renderCal();return}
+  if(b.id==="calIcs"){const ev=calEvents(365);if(await guardarArchivo("vencimientos.ics",icsDe(ev),"text/calendar"))toast("Abrí el archivo para sumarlo a tu calendario.");return}
+  if(b.id==="repHtml"){const mes=sel||todayStr().slice(0,7);if(await guardarArchivo(`informe-${mes}.html`,reporteHTML(mes),"text/html"))toast("Abrilo y tocá “Imprimir / Guardar PDF”.");return}
+  if(b.id==="repCsv"){const mes=sel||todayStr().slice(0,7);await guardarArchivo(`movimientos-${mes}.csv`,csvMes(mes),"text/csv");return}
+});
+document.addEventListener("submit",async e=>{
+  if(e.target.id==="addFact"){e.preventDefault();if(!db)return;await db.collection("facturas").add({fecha:$("#af-f").value,cliente:$("#af-c").value.trim(),concepto:"Servicios",monto:+$("#af-m").value||0,numero:$("#af-n").value.trim(),cobroId:null,tipo:"C"});e.target.reset();toast("Factura registrada.")}
+  if(e.target.id==="addEv"){e.preventDefault();const ev={id:Date.now().toString(36),nombre:$("#ae-n").value.trim(),fecha:$("#ae-f").value,monto:+$("#ae-m").value||0,mensual:$("#ae-r").checked};await saveCfg({eventos:[...(CFG.eventos||[]),ev]});e.target.reset();renderCal();toast("Vencimiento agregado.")}
+});
+// enganches con la app
+const _renderAll=renderAll;renderAll=function(){_renderAll();renderFact();renderCal();renderRep()};
+const _renderPresu=renderPresu;renderPresu=function(){_renderPresu();renderCal()};
+(async()=>{for(let i=0;i<150&&!db;i++)await new Promise(r=>setTimeout(r,100));if(!db)return;
+  db.collection("facturas").onSnapshot(s=>{FACTS=s.docs;renderFact();renderMono();renderRep()});
+  db.doc("config/perfil").onSnapshot(()=>{renderMono();renderFact();renderCal()});
+})();
+
+FIS_READY=true;renderMono();renderFact();renderCal();renderRep();
 
 /* ---------- Asesor IA ---------- */
 var IA_SAMPLE=null,IA_TURNS=[],IA_CTL=null,IA_BUSY=false;
@@ -837,6 +1177,7 @@ function iaContexto(){
   const g=goals();if(g.length)L.push(`Objetivos de ahorro: `+g.map(x=>`${x.nombre}: ${x.pct}% de cada cobro, meta ${fmt(x.objetivo||0)}`).join("; ")+".");
   const f=fijos().filter(x=>x.activo);if(f.length)L.push(`Gastos fijos mensuales: `+f.map(x=>`${x.nombre} ${fmt(x.monto)} (día ${x.dia})`).join("; ")+".");
   const a=avgStats();if(a.n)L.push(`Promedio mensual (${a.n} meses): ingreso ${fmt(a.ing)}, salida total ${fmt(a.gas)}.`);
+  try{const C=monoCalc();if(C.F.regimen==="monotributo"){const ref=C.decl||C.cat;L.push(`\nMonotributo (${C.F.actividad}${C.F.provincia?", "+C.F.provincia:""}): facturado últimos 12 meses ${fmt(C.suma)}${C.anualizado?`, proyección anual ${fmt(C.anual)}`:""}; categoría que corresponde ${C.cat?C.cat[0]:"supera K"}${C.decl?`, categoría declarada ${C.decl[0]}`:""}; cuota mensual ${ref?fmt(C.cuota(ref)):"?"}; este mes puede facturar hasta ${fmt(C.margenMes)} sin pasarse; próxima recategorización ${fecha(C.recat)}.`);const sf=sinFacturarResumen();if(sf.n)L.push(`Cobros sin factura (3 meses): ${sf.n} por ${fmt(sf.monto)}.`)}const ev=calEvents(30).filter(e=>!e.pagado);if(ev.length)L.push("Vencimientos próximos 30 días: "+ev.map(e=>`${e.fecha} ${e.nombre}${e.monto?" "+fmt(e.monto):""}`).join("; ")+".")}catch(e){}
   if(!ms.length)L.push("Todavía no hay movimientos cargados.");
   return L.join("\n");
 }
