@@ -178,6 +178,31 @@ input[type=range]{width:100%;padding:0;accent-color:var(--accent)}
 .brandh{margin:0;line-height:0}.brandh .logo{width:40px;height:40px;color:var(--ink);display:block}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 [hidden]{display:none!important}
+.fixsaldo{display:grid;gap:8px;justify-items:start}.fixsaldo .linkbtn{font-size:13px;padding:2px 0;opacity:.85}.fixsaldo form{display:flex;gap:8px;width:100%;flex-wrap:wrap}.fixsaldo input{flex:1 1 160px;min-width:0}
+.filters select,.filters input{max-width:100%;min-width:0}
+.movtable select{max-width:100%;min-width:0;box-sizing:border-box}
+#p-movs .card{grid-template-columns:minmax(0,1fr)}
+#p-movs .tablewrap{overflow-x:visible}
+@media (max-width:640px){#p-movs .tablewrap{overflow-x:hidden}}
+.movtable .mamt{white-space:nowrap;font-weight:700}
+@media (max-width:640px){
+ .movtable thead{display:none}
+ .movtable,.movtable tbody{display:block}
+ .movtable tr{display:grid;grid-template-columns:44px 1fr 1fr auto;gap:4px 10px;align-items:start;padding:12px 2px;border-bottom:1px solid var(--line)}
+ .movtable td{border:0;padding:0;min-width:0}
+ .movtable td:nth-child(1){grid-row:1;grid-column:1;color:var(--muted);font-size:13px;padding-top:2px}
+ .movtable td:nth-child(2){grid-row:1;grid-column:2/4}
+ .movtable td.mamt{grid-row:1;grid-column:4;font-size:16px}
+ .movtable td:nth-child(4){grid-row:2;grid-column:1/3}
+ .movtable td:nth-child(5){grid-row:2;grid-column:3/5}
+ .movtable td:nth-child(4) select,.movtable td:nth-child(5) select{width:100%;font-size:13px;padding:6px 8px}
+ .movtable tr:has(td.empty){display:block}
+}
+
+.refreshbtn{display:inline-grid;place-items:center;width:40px;height:40px;padding:0;border-radius:999px}
+.refreshbtn.spin svg{animation:rfspin .8s linear infinite}
+@keyframes rfspin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.refreshbtn.spin svg{animation:none}}
 .fisform{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
 .mlist{display:grid;gap:6px}
 .mrow{display:grid;grid-template-columns:52px 1fr 120px 70px;align-items:center;gap:8px;font-size:14px}
@@ -217,6 +242,7 @@ input[type=range]{width:100%;padding:0;accent-color:var(--accent)}
     <div class="filters">
       <label for="mes" class="note">Mes</label>
       <select id="mes"></select>
+      <button type="button" class="refreshbtn" id="refreshBtn" aria-label="Actualizar datos" title="Actualizar datos"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg></button>
       <button type="button" class="themebtn" id="themeBtn" aria-label="Cambiar a modo oscuro"><span class="ic" aria-hidden="true">☾</span><span class="tl">Modo oscuro</span></button>
     </div>
   </header>
@@ -298,7 +324,7 @@ input[type=range]{width:100%;padding:0;accent-color:var(--accent)}
         <input id="f-q" placeholder="Buscar…" aria-label="Buscar" style="flex:1 1 140px">
       </div>
       <p class="note">Si cambiás el tipo o la categoría de una transferencia, se guarda como regla: la próxima vez que aparezca esa persona o comercio se clasifica igual.</p>
-      <div class="tablewrap"><table><thead><tr><th>Fecha</th><th>Descripción</th><th>Tipo</th><th>Categoría</th><th class="r">Monto</th></tr></thead><tbody id="tb"></tbody></table></div>
+      <div class="tablewrap"><table class="movtable"><thead><tr><th>Fecha</th><th>Descripción</th><th class="r">Monto</th><th>Tipo</th><th>Categoría</th></tr></thead><tbody id="tb"></tbody></table></div>
     </div>
     <datalist id="catlist"></datalist>
   </section>
@@ -580,6 +606,8 @@ h2{font-size:16px;font-weight:500}
 header{display:grid!important;grid-template-columns:auto 1fr;align-items:center!important}
 header .filters{justify-content:flex-end;flex-wrap:nowrap;gap:10px}
 .themebtn{position:static!important;box-shadow:none!important;background:var(--surface-2)!important;color:var(--ink)!important;border:1px solid var(--edge)!important;border-radius:999px;padding:8px 14px;order:3;margin-left:6px}
+.refreshbtn{order:2;background:var(--surface-2)!important;color:var(--ink)!important;border:1px solid var(--line)!important}
+.refreshbtn:hover{border-color:var(--edge)!important;box-shadow:0 0 18px -6px var(--glow)}
 .themebtn:hover{box-shadow:0 0 18px -6px var(--glow)!important}
 @media (max-width:700px){.themebtn{padding:9px 11px!important}.themebtn .tl{display:none}header .filters label{display:none}}
 
@@ -756,9 +784,9 @@ const fecha=f=>`${f.slice(8)}/${f.slice(5,7)}/${f.slice(0,4)}`;
 function saldoActual(){
   const S=SYNC&&SYNC.saldo&&SYNC.saldo.fecha?SYNC.saldo:null;
   const B=CFG.saldoBase;
-  if(S&&(!B||S.fecha.slice(0,10)>=B.hasta))return {monto:+S.disponible,txt:`Saldo real de Mercado Pago · ${new Date(S.fecha).toLocaleString("es-AR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"})}`};
+  if(S&&(!B||(B.ajustado?S.fecha>B.ajustado:S.fecha.slice(0,10)>=B.hasta)))return {monto:+S.disponible,txt:`Saldo real de Mercado Pago · ${new Date(S.fecha).toLocaleString("es-AR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"})}`};
   if(!B)return null;
-  const after=allMovs().filter(m=>m.fecha>B.hasta);
+  const after=allMovs().filter(m=>m.fecha>B.hasta||(m.fecha===B.hasta&&Array.isArray(B.ids)&&!B.ids.includes(m.id)));
   const ult=after.reduce((x,m)=>m.fecha>x?m.fecha:x,B.hasta);
   return {monto:B.monto+after.reduce((s,m)=>s+m.monto,0),txt:`Disponible en Mercado Pago · calculado al ${fecha(ult)}`};
 }
@@ -775,7 +803,8 @@ function renderKpis(){
   const sa=saldoActual();
   $("#hero").innerHTML=`<div class="herotop"><span class="lbl">Tu dinero</span><span class="side"><span>Ingresado en ${mesNombre(sel).split(" ")[0]}</span><b>${fmt(s.ing+s.rend)}</b></span></div>
     <span class="big">${sa?fmt(sa.monto):"—"}</span>
-    <span class="src">${sa?esc(sa.txt):"Subí un resumen de Mercado Pago para tomar el saldo inicial."}</span>`;
+    <span class="src">${sa?esc(sa.txt):"Subí un resumen de Mercado Pago para tomar el saldo inicial."}${syncAge()}</span>
+    <div class="fixsaldo"><button type="button" class="linkbtn" id="fixSaldoBtn">¿No coincide con tu Mercado Pago? Corregir</button><form id="fixSaldoF" hidden><input type="number" id="fixSaldoIn" step="0.01" inputmode="decimal" placeholder="Saldo que ves en Mercado Pago" aria-label="Saldo real en Mercado Pago"><button class="primary" type="submit">Guardar</button></form></div>`;
   renderCalc();
   const byDate=(a,b)=>a.fecha<b.fecha?1:a.fecha>b.fecha?-1:String(b.id).localeCompare(String(a.id));
   const last=allMovs().filter(m=>m.monto>0&&(m.tipo==="ingreso"||(m.tipo==="interno"&&String(m.cat).startsWith("Transferencias personales")))&&!/devoluci/i.test(m.desc)).sort(byDate)[0];
@@ -825,9 +854,10 @@ function renderMovs(){
   $("#tb").innerHTML=ms.length?ms.map(m=>`<tr class="${m.tipo==="interno"?"excl":""}">
     <td class="num">${m.fecha.slice(8)}/${m.fecha.slice(5,7)}</td>
     <td>${esc(m.desc)} ${m.confirmar?'<span class="chip warn">a confirmar</span>':""} ${m.nota?`<span class="chip grey">${esc(m.nota)}</span>`:""}<div class="note">${esc(m.cuenta||"")}</div></td>
+    <td class="r num mamt ${m.monto>=0?"pos":"neg"}">${m.monto>0?"+":""}${fmt(m.monto)}</td>
     <td><select data-id="${m.id}" data-doc="${m._doc}" data-f="tipo" aria-label="Tipo">${Object.entries(TIPOS).map(([k,v])=>`<option value="${k}" ${k===m.tipo?"selected":""}>${v}</option>`).join("")}</select></td>
     <td><select data-id="${m.id}" data-doc="${m._doc}" data-f="cat" aria-label="Categoría">${catOptions(m.cat)}</select></td>
-    <td class="r num ${m.monto>=0?"pos":"neg"}">${fmt(m.monto)}</td></tr>`).join(""):`<tr><td colspan="5" class="empty">No hay movimientos con ese filtro.</td></tr>`;
+</tr>`).join(""):`<tr><td colspan="5" class="empty">No hay movimientos con ese filtro.</td></tr>`;
 }
 /* Ahorro */
 function renderAhorro(){
@@ -1026,6 +1056,12 @@ renderAll();
   db.doc("sync/estado").onSnapshot(s=>{SYNC=s.exists?s.data():null;renderSync();if(sel)renderKpis()});
   db.doc("config/perfil").onSnapshot(s=>{CFG=s.exists?{...s.data()}:{};renderAhorro();renderAlquiler();renderMono();renderPresu();renderAjustes();if(sel)renderKpis()});
 })();
+
+document.getElementById("refreshBtn")?.addEventListener("click",e=>{const b=e.currentTarget;b.classList.add("spin");b.disabled=true;try{toast("Actualizando datos…")}catch(x){}setTimeout(()=>location.reload(),350)});
+
+function syncAge(){const t=SYNC&&SYNC.ultimo_sync?new Date(SYNC.ultimo_sync):null;if(!t||isNaN(t))return "";const min=Math.round((Date.now()-t)/60000);const txt=min<1?"recién":min<60?`hace ${min} min`:min<1440?`hace ${Math.round(min/60)} h`:`hace ${Math.round(min/1440)} días`;return ` · Mercado Pago sincronizado ${txt}`}
+document.addEventListener("click",e=>{if(e.target.closest("#fixSaldoBtn")){const f=$("#fixSaldoF");f.hidden=!f.hidden;if(!f.hidden)$("#fixSaldoIn").focus()}});
+document.addEventListener("submit",async e=>{if(e.target.id!=="fixSaldoF")return;e.preventDefault();const v=parseFloat(String($("#fixSaldoIn").value).replace(",","."));if(!isFinite(v)){toast("Escribí el saldo, por ejemplo 85320.50");return}const hoy=todayStr();await saveCfg({saldoBase:{monto:v,hasta:hoy,ajustado:new Date().toISOString(),ids:allMovs().filter(m=>m.fecha===hoy).map(m=>m.id)}});toast("Listo: tu dinero quedó en "+fmt(v)+". A partir de ahora suma y resta solo con cada movimiento nuevo.");renderKpis()});
 
 var FIS_READY=false;
 /* ---------- Módulos fiscales: monotributo, facturas, calendario, reportes ---------- */
